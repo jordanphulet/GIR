@@ -1,0 +1,15 @@
+#! /bin/bash
+export GIR_DIR=/v/raid5/usr/jhulet/gir
+
+# set to the location of the matlab libraries
+# NOTE: newest matlab has a newer version of glibc than will currently work here...
+export MATLAB_LIB_DIR=/opt/LOCAL/matlab/2008b/bin/glnxa64
+export CUDA_LIB_DIR=/usr/local/cuda/lib64
+export FFTW_LIB_DIR=/home/mirl/jhulet/raid/opt/fftw3/lib
+
+# stop Matlabs stupid splash screen
+export DISPLAY=
+# needs to link to the matlab libs
+export LD_LIBRARY_PATH=$MATLAB_LIB_DIR:$CUDA_LIB_DIR:$FFTW_LIB_DIR:$LD_LIBRARY_PATH:$GIR_DIR/lib
+
+$GIR_DIR/bin/gir-daemon $GIR_DIR/config.xml

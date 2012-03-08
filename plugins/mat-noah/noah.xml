@@ -1,0 +1,18 @@
+<gir_xml>
+	<pipeline>
+
+		<!-- plugins -->
+		<plugin id="Plugin_Matlab" alias="matlab" />
+		<!-- links -->
+		<root alias="matlab" />
+
+	</pipeline>
+	<!-- configuration -->
+	<config>
+
+		<param_set plugin_alias="matlab">
+			<param name="matlab_script" value="noah" />
+		</param_set>
+
+	</config>
+</gir_xml>

@@ -1,0 +1,20 @@
+<gir_xml>
+
+	<!-- pipeline -->
+	<pipeline>
+		<!-- plugins -->
+		<plugin id="Plugin_SortCombine" alias="combine" />
+		<plugin id="Plugin_TempInterpK" alias="interp" />
+
+		<!-- links -->
+		<root alias="combine" />
+		<link input="combine" output="interp" />
+	</pipeline>
+	
+	<!-- configuration -->
+	<config>
+		<param_set plugin_alias="interp">
+		</param_set>
+	</config>
+
+</gir_xml>

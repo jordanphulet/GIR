@@ -1,0 +1,26 @@
+<gir_xml>
+	<pipeline>
+
+		<!-- plugins -->
+		<plugin id="Plugin_Matlab" alias="matlab" />
+		<plugin id="Plugin_RadialGridder" alias="RadialGridder" />
+		<!-- links -->
+		<root alias="matlab" />
+		<link input="matlab" output="RadialGridder" />
+
+	</pipeline>
+	<!-- configuration -->
+	<config>
+
+		<param_set plugin_alias="matlab">
+			<param name="matlab_script" value="radial_dc" />
+		</param_set>
+
+		<param_set plugin_alias="RadialGridder">
+			<param name="kernel_size" value="101" />
+			<param name="view_ordering" value="JORDAN_JITTER" />
+			<param name="flatten" value="false" />
+		</param_set>
+
+	</config>
+</gir_xml>

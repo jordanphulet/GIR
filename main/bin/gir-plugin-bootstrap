@@ -1,0 +1,188 @@
+#! /bin/bash
+
+GIR_DIR=/v/raid5/usr/jhulet/gir
+GIR_SRC_DIR=/v/raid5/usr/jhulet/src/gir/main
+
+if [ $# -eq 2 ]
+then
+	GIR_PIPELINE=$1
+	GIR_PLUGIN_NAME=$2
+elif [ $# -eq 3 ]
+then
+	GIR_PIPELINE=$1
+	GIR_PLUGIN_NAME=$2
+	GIR_DIR=$3
+else
+	echo -n "Enter plugin name: "
+	read GIR_PLUGIN_NAME
+	echo -n "Enter pipeline name (without the .xml extension): "
+	read GIR_PIPELINE
+fi
+
+# create makefile
+if [ -f "makefile" ]
+then
+	echo -n "makefile already exists, overwrite [y|N] ?"
+	read -n 1 CHOICE
+	if [ "$CHOICE" != "y" ]
+	then
+		echo "aborting..."
+		exit
+	fi
+	echo ""
+fi
+
+cat <<ENDL > makefile
+GIR_INC_DIR := $GIR_SRC_DIR/src
+GIR_LIB_DIR := $GIR_SRC_DIR/lib
+PIPELINE := $GIR_PIPELINE.xml
+GIR_DIR := $GIR_DIR
+
+CXX_ARGS := -I./ -I\${GIR_INC_DIR}
+
+Plugin_$GIR_PLUGIN_NAME.so: Plugin_$GIR_PLUGIN_NAME.cpp
+	\${CXX} \${CXX_ARGS} -L\${GIR_LIB_DIR} -lgir-base -shared -fPIC -o \$@ $<
+
+link: unlink 
+	ln -s \${PWD}/\${PIPELINE} \${GIR_DIR}/pipelines/\${PIPELINE}
+	ln -s \${PWD}/Plugin_$GIR_PLUGIN_NAME.so \${GIR_DIR}/plugins/
+
+unlink:
+	rm -f \${GIR_DIR}/pipelines/\${PIPELINE}
+	rm -f \${GIR_DIR}/plugins/Plugin_$GIR_PLUGIN_NAME.so
+
+clean:
+	rm -f Plugin_$GIR_PLUGIN_NAME.so
+ENDL
+
+# create h
+if [ -f "Plugin_$GIR_PLUGIN_NAME.h" ]
+then
+	echo -n "Plugin_$GIR_PLUGIN_NAME.h already exists, overwrite [y|N] ?"
+	read -n 1 CHOICE
+	if [ "$CHOICE" != "y" ]
+	then
+		echo "aborting...\n"
+		exit
+	fi
+	echo ""
+fi
+
+cat <<ENDL > Plugin_$GIR_PLUGIN_NAME.h
+#ifndef PLUGIN_${GIR_PLUGIN_NAME}_H
+#define PLUGIN_${GIR_PLUGIN_NAME}_H
+
+#include <ReconPlugin.h>
+
+class GIRConfig;
+
+class Plugin_${GIR_PLUGIN_NAME}: public ReconPlugin
+{
+	public:
+	Plugin_${GIR_PLUGIN_NAME}( const char* new_plugin_id, const char* new_alias ): ReconPlugin( new_plugin_id, new_alias ) {}
+
+	protected:
+	bool Configure( GIRConfig& config, bool main_config, bool final_config );
+	bool Reconstruct( MRIData& mri_data );
+};
+
+#endif
+ENDL
+
+# create cpp
+# create h
+if [ -f "Plugin_$GIR_PLUGIN_NAME.cpp" ]
+then
+	echo -n "Plugin_$GIR_PLUGIN_NAME.cpp already exists, overwrite [y|N] ?"
+	read -n 1 CHOICE
+	if [ "$CHOICE" != "y" ]
+	then
+		echo "aborting...\n"
+		exit
+	fi
+	echo ""
+fi
+
+cat <<ENDL > Plugin_$GIR_PLUGIN_NAME.cpp
+#include <GIRLogger.h>
+#include <GIRConfig.h>
+#include <Plugin_$GIR_PLUGIN_NAME.h>
+
+extern "C" ReconPlugin* create( const char* alias )
+{
+	return new Plugin_$GIR_PLUGIN_NAME( "Plugin_$GIR_PLUGIN_NAME", alias );
+}
+
+extern "C" void destroy( ReconPlugin* plugin )
+{
+	delete plugin;
+}
+
+bool Plugin_$GIR_PLUGIN_NAME::Configure( GIRConfig& config, bool main_config, bool final_config )
+{
+	//config.GetParam( plugin_id.c_str(), alias.c_str(), "param1", param1 ) )
+	return true;
+}
+
+bool Plugin_$GIR_PLUGIN_NAME::Reconstruct( MRIData& mri_data )
+{
+	return true;
+}
+ENDL
+
+# create pipeline
+if [ -f "${GIR_PIPELINE}.xml" ]
+then
+	echo -n "${GIR_PIPELINE}.xml already exists, overwrite [y|N]? "
+	read -n 1 CHOICE
+	if [ "$CHOICE" != "y" ]
+	then
+		echo "aborting..."
+		exit
+	fi
+	echo ""
+fi
+
+cat <<ENDL > ${GIR_PIPELINE}.xml
+<gir_xml>
+	<pipeline>
+
+		<!-- plugins -->
+		<plugin id="Plugin_$GIR_PLUGIN_NAME" alias="$GIR_PLUGIN_NAME" />
+		<!-- links -->
+		<root alias="$GIR_PLUGIN_NAME" />
+
+	</pipeline>
+	<!-- configuration -->
+	<config>
+
+		<param_set plugin_alias="$GIR_PLUGIN_NAME">
+		</param_set>
+
+	</config>
+</gir_xml>
+ENDL
+
+# create test script
+if [ -f "test.m" ]
+then
+	echo -n "test.m already exists, overwrite [y|N]? "
+	read -n 1 CHOICE
+	if [ "$CHOICE" != "y" ]
+	then
+		echo "aborting..."
+		exit
+	fi
+	echo ""
+fi
+
+cat <<ENDL > test.m
+path( path, '$GIR_DIR/bin' );
+path( path, '$GIR_DIR/matlab_scripts' );
+%path( path, '/home/mirl/jhulet/matlab/utils' );
+
+res = SendDat( 'sebulba', '9999', '$GIR_PIPELINE', 'sample_meas.dat' );
+ENDL
+
+# copy sample dat
+cp $GIR_DIR/sample_meas.dat . 

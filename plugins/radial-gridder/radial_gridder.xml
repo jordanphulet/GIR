@@ -1,0 +1,21 @@
+<gir_xml>
+	<pipeline>
+
+		<!-- plugins -->
+		<plugin id="Plugin_SortCombine" alias="combine" />
+		<plugin id="Plugin_RadialGridder" alias="RadialGridder" />
+		<!-- links -->
+		<root alias="combine" />
+		<link input="combine" output="RadialGridder" />
+
+	</pipeline>
+	<!-- configuration -->
+	<config>
+
+		<param_set plugin_alias="RadialGridder">
+			<param name="kernel_size" value="101" />
+			<param name="view_ordering" value="GOLDEN_RATIO" />
+		</param_set>
+
+	</config>
+</gir_xml>
