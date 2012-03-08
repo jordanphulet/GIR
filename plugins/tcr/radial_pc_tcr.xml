@@ -1,0 +1,52 @@
+<gir_xml>
+
+	<!-- pipeline -->
+	<pipeline>
+		<!-- plugins -->
+		<plugin id="Plugin_SortCombine" alias="combine" />
+		<plugin id="Plugin_Matlab" alias="ch_pca" />
+		<plugin id="Plugin_RadialGridder" alias="grid" />
+		<plugin id="Plugin_TCR" alias="tcr" />
+		<plugin id="Plugin_Matlab" alias="remove_os" />
+		<plugin id="Plugin_Matlab" alias="zero_fill_interp" />
+
+		<!-- links -->
+		<root alias="combine" />
+		<link input="combine" output="grid" />
+		<link input="grid" output="tcr" />
+	</pipeline>
+	
+	<!-- configuration -->
+	<config>
+		<param_set plugin_alias="grid">
+			<param name="kernel_size" value="101" />
+			<param name="view_ordering" value="JORDAN_JITTER" />
+		</param_set>
+
+		<param_set plugin_alias="ch_pca">
+			<param name="matlab_script" value="ch_pca" />
+		</param_set>
+
+		<param_set plugin_alias="tcr">
+			<param name="iterations" value="100" />
+			<param name="alpha" value="1" />
+			<param name="beta" value="0.001" />
+			<param name="step_size" value="0.1" />
+			<param name="use_gpu" value="true" />
+			<param name="gpu_thread_load" value="3" />
+		</param_set>
+
+		<param_set plugin_alias="remove_os">
+			<param name="matlab_script" value="remove_os" />
+			<param name="x_os" value="2" />
+			<param name="y_os" value="2" />
+		</param_set>
+
+		<param_set plugin_alias="zero_fill_interp">
+			<param name="matlab_script" value="zero_fill_interp" />
+			<param name="x_factor" value="2" />
+			<param name="y_factor" value="2" />
+		</param_set>
+	</config>
+
+</gir_xml>

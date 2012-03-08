@@ -1,0 +1,29 @@
+<gir_xml>
+
+	<!-- pipeline -->
+	<pipeline>
+		<!-- plugins -->
+		<plugin id="Plugin_SortCombine" alias="combine" />
+		<plugin id="Plugin_TCR" alias="tcr" />
+
+		<!-- links -->
+		<root alias="combine" />
+		<link input="combine" output="tcr" />
+	</pipeline>
+	
+	<!-- configuration -->
+	<config>
+
+		<param_set plugin_alias="tcr">
+			<param name="iterations" value="10" />
+			<param name="alpha" value="1" />
+			<param name="beta" value="0.003" />
+			<param name="beta_squared" value="0.000008" />
+			<param name="step_size" value="0.0001" />
+			<param name="use_gpu" value="true" />
+			<param name="gpu_thread_load" value="6" />
+		</param_set>
+
+	</config>
+
+</gir_xml>
